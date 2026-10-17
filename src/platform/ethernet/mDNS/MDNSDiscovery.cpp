@@ -206,14 +206,14 @@ std::vector<MDNSSocketInfo> MDNSDiscovery::openClientSockets() {
 
 #else
     struct ifaddrs *ifaddr, *ifa;
-    int             family, n;
+    int             family;
 
     if(getifaddrs(&ifaddr) == -1) {
         LOG_INTVL(LOG_INTVL_OBJECT_TAG + "openClientSockets", MAX_LOG_INTERVAL, spdlog::level::debug, "getifaddrs failed with error:{}", GET_LAST_ERROR());
         return socks;
     }
 
-    for(ifa = ifaddr, n = 0; ifa != NULL; ifa = ifa->ifa_next, n++) {
+    for(ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
         if(ifa->ifa_addr == NULL) {
             continue;
         }
