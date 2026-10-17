@@ -371,7 +371,7 @@ template <class T> std::shared_ptr<T> Bag::instantiateBuffer(IndexEntry const &i
         readMessageDataHeaderFromBuffer(*current_buffer_, index_entry.offset, header, data_size, bytes_read);
 
         // Read the connection id from the header
-        uint32_t connection_id;
+        uint32_t connection_id = 0;
         readField(*header.getValues(), CONNECTION_FIELD_NAME, true, &connection_id);
 
         std::map<uint32_t, ConnectionInfo *>::const_iterator connection_iter = connections_.find(connection_id);
