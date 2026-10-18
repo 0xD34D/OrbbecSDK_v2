@@ -32,6 +32,7 @@ public:
 
 private:
     void replaceG2Components();
+    bool isBinocularMode();
     void initDepthSensor();
     void initDepthProperties();
 };

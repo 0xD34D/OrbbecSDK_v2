@@ -44,6 +44,14 @@ void OtterDevice::replaceG2Components() {
 
     initDepthProperties();
     initDepthSensor();
+
+    // The disparity to depth conversion processes the depth channel, which carries the right IR image in the binocular modes
+    getPropertyServer()->setPropertyValueT<bool>(OB_PROP_DISPARITY_TO_DEPTH_BOOL, !isBinocularMode());
+}
+
+bool OtterDevice::isBinocularMode() {
+    auto manager = getComponentT<G2DepthWorkModeManager>(OB_DEV_COMPONENT_DEPTH_WORK_MODE_MANAGER);
+    return G2DepthWorkModeManager::isRightIrFromDepthChannel(manager->getCurrentDepthWorkMode().mode.optionCode);
 }
 
 void OtterDevice::initDepthProperties() {

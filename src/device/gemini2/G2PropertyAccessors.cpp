@@ -217,8 +217,11 @@ void OtterDisp2DepthPropertyAccessor::setPropertyValue(uint32_t propertyId, cons
     auto commandPort = owner->getComponentT<IBasicPropertyAccessor>(OB_DEV_COMPONENT_MAIN_PROPERTY_ACCESSOR);
     switch(propertyId) {
     case OB_PROP_DISPARITY_TO_DEPTH_BOOL: {
-        if(value.intValue != 1) {
-            THROW_UNSUPPORTED_OPERATION_EXCEPTION("Hardware disparity to depth can not be disabled on this device");
+        // Depth needs it; only the binocular modes, whose depth channel carries the right IR image, run without it
+        auto       modeManager = owner->getComponentT<G2DepthWorkModeManager>(OB_DEV_COMPONENT_DEPTH_WORK_MODE_MANAGER);
+        const bool binocular   = G2DepthWorkModeManager::isRightIrFromDepthChannel(modeManager->getCurrentDepthWorkMode().mode.optionCode);
+        if(value.intValue != 1 && !binocular) {
+            THROW_UNSUPPORTED_OPERATION_EXCEPTION("Hardware disparity to depth can not be disabled in a depth work mode on this device");
         }
         commandPort->setPropertyValue(propertyId, value);
     } break;
