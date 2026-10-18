@@ -5,6 +5,7 @@
 #include "G2Device.hpp"
 #include "G2XLDevice.hpp"
 #include "G210Device.hpp"
+#include "OtterDevice.hpp"
 #include "G435LeDevice.hpp"
 #include "common/DevicePids.hpp"
 #include "utils/Utils.hpp"
@@ -23,7 +24,13 @@
 namespace libobsensor {
 
 const std::map<int, std::string> G2DeviceNameMap = {
-    { 0x0670, "Gemini2" }, { 0x0673, "Gemini2 L" }, { 0x0671, "Gemini2 XL" }, { 0x0808, "Gemini 215" }, { 0x0809, "Gemini 210" }
+    { 0x0670, "Gemini2" },    { 0x0673, "Gemini2 L" }, { 0x0671, "Gemini2 XL" }, { 0x0808, "Gemini 215" }, { 0x0809, "Gemini 210" },
+    { OB_DEVICE_CR_SCAN_OTTER_PID, "CR-Scan Otter" },
+};
+
+// OEM devices built on the Gemini2 platform that are sold under another brand
+const std::map<int, std::string> G2OemManufacturerMap = {
+    { OB_DEVICE_CR_SCAN_OTTER_PID, "Creality" },
 };
 
 G2DeviceInfo::G2DeviceInfo(const SourcePortInfoList groupedInfoList) {
@@ -39,7 +46,7 @@ G2DeviceInfo::G2DeviceInfo(const SourcePortInfoList groupedInfoList) {
             name_ = "Gemini2 series device";
         }
 
-        fullName_ = "Orbbec " + name_;
+        fullName_ = getManufacturerName(portInfo->pid) + " " + name_;
 
         pid_                = portInfo->pid;
         vid_                = portInfo->vid;
@@ -86,6 +93,11 @@ G2DeviceInfo::G2DeviceInfo(const SourcePortInfoList groupedInfoList) {
 
 G2DeviceInfo::~G2DeviceInfo() noexcept {}
 
+std::string G2DeviceInfo::getManufacturerName(int pid) {
+    auto iter = G2OemManufacturerMap.find(pid);
+    return iter != G2OemManufacturerMap.end() ? iter->second : std::string("Orbbec");
+}
+
 std::shared_ptr<IDevice> G2DeviceInfo::createDevice(OBDeviceAccessMode accessMode) const {
     (void)accessMode;  // access control is unsupported
     if(isDeviceInContainer(G435LeDevPids, vid_, pid_)) {
@@ -100,6 +112,9 @@ std::shared_ptr<IDevice> G2DeviceInfo::createDevice(OBDeviceAccessMode accessMod
         }
         else if(pid_ == 0x0808 || pid_ == 0x0809) {
             return std::make_shared<G210Device>(shared_from_this());
+        }
+        else if(pid_ == OB_DEVICE_CR_SCAN_OTTER_PID) {
+            return std::make_shared<OtterDevice>(shared_from_this());
         }
     }
     return std::make_shared<G2Device>(shared_from_this());

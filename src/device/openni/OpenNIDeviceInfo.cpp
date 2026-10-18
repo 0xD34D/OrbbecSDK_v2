@@ -102,6 +102,7 @@ std::vector<std::shared_ptr<IDeviceEnumInfo>> OpenNIDeviceInfo::pickDevices(cons
             else {
                 auto mapItem = depthRgbPidMaps.find((int)depthPortInfo->pid);
                 if(mapItem == depthRgbPidMaps.end()) {
+                    iter++;
                     continue;
                 }
 

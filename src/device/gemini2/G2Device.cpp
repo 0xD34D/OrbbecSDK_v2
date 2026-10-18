@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "G2Device.hpp"
+#include "G2DeviceInfo.hpp"
 
 #include "common/DevicePids.hpp"
 #include "InternalTypes.hpp"
@@ -65,6 +66,8 @@ void G2Device::init() {
 
     fetchDeviceInfo();
     fetchExtensionInfo();
+    // fetchDeviceInfo() names every device Orbbec; restore the OEM brand
+    deviceInfo_->fullName_ = G2DeviceInfo::getManufacturerName(deviceInfo_->pid_) + " " + deviceInfo_->name_;
 
     deviceTimeFreq_ = deviceInfo_->pid_ == GEMINI2L_PID ? 1000 : 1000000;
 
@@ -478,7 +481,7 @@ void G2Device::fixSensorList() {
     const auto &currentMode          = depthWorkModeManager->getCurrentDepthWorkMode();
 
     // deregister unsupported sensors according to depth work mode option code
-    if(currentMode.mode.optionCode == OBDepthModeOptionCode::MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+    if(G2DepthWorkModeManager::isRightIrFromDepthChannel(currentMode.mode.optionCode)) {
         deregisterSensor(OB_SENSOR_IR);
         deregisterSensor(OB_SENSOR_DEPTH);
     }

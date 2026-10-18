@@ -19,6 +19,15 @@ public:
     void                           switchDepthWorkMode(const std::string &modeName, const std::string &version = "") override;
     void                           fetchDepthWorkModeList() override;
 
+    // The option code is a bit field, so test the flag rather than the value
+    static bool isRightIrFromDepthChannel(uint32_t optionCode) {
+        return (optionCode & MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) != 0;
+    }
+
+protected:
+    // Gemini2 firmware takes the v1.1 structure protocol
+    virtual void writeDepthWorkMode(const OBDepthWorkMode_Internal &mode);
+
 private:
     void switchDepthWorkMode(const OBDepthWorkModeV2_Internal &targetDepthMode);
 

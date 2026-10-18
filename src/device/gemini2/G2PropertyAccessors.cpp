@@ -210,6 +210,34 @@ void G210Disp2DepthPropertyAccessor::getPropertyValue(uint32_t propertyId, OBPro
     }
 }
 
+OtterDisp2DepthPropertyAccessor::OtterDisp2DepthPropertyAccessor(IDevice *owner) : G2Disp2DepthPropertyAccessor(owner) {}
+
+void OtterDisp2DepthPropertyAccessor::setPropertyValue(uint32_t propertyId, const OBPropertyValue &value) {
+    auto owner       = getOwner();
+    auto commandPort = owner->getComponentT<IBasicPropertyAccessor>(OB_DEV_COMPONENT_MAIN_PROPERTY_ACCESSOR);
+    switch(propertyId) {
+    case OB_PROP_DISPARITY_TO_DEPTH_BOOL: {
+        if(value.intValue != 1) {
+            THROW_UNSUPPORTED_OPERATION_EXCEPTION("Hardware disparity to depth can not be disabled on this device");
+        }
+        commandPort->setPropertyValue(propertyId, value);
+    } break;
+    default: {
+        commandPort->setPropertyValue(propertyId, value);
+    } break;
+    }
+}
+
+void OtterDisp2DepthPropertyAccessor::getPropertyValue(uint32_t propertyId, OBPropertyValue *value) {
+    auto commandPort = getOwner()->getComponentT<IBasicPropertyAccessor>(OB_DEV_COMPONENT_MAIN_PROPERTY_ACCESSOR);
+    commandPort->getPropertyValue(propertyId, value);
+}
+
+void OtterDisp2DepthPropertyAccessor::getPropertyRange(uint32_t propertyId, OBPropertyRange *range) {
+    auto commandPort = getOwner()->getComponentT<IBasicPropertyAccessor>(OB_DEV_COMPONENT_MAIN_PROPERTY_ACCESSOR);
+    commandPort->getPropertyRange(propertyId, range);
+}
+
 G2FrameTransformPropertyAccessor::G2FrameTransformPropertyAccessor(IDevice *owner) : owner_(owner), optionCode_(INVALID) {}
 
 OBDepthModeOptionCode G2FrameTransformPropertyAccessor::getOptionCode() {
@@ -227,7 +255,7 @@ void G2FrameTransformPropertyAccessor::setPropertyValue(uint32_t propertyId, con
     case OB_PROP_DEPTH_MIRROR_BOOL:
     case OB_PROP_DEPTH_FLIP_BOOL:
     case OB_PROP_DEPTH_ROTATE_INT: {
-        if(getOptionCode() == MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+        if(G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode())) {
             LOG_DEBUG("Depth properties unavailable in MX6600 mode");
             return;
         }
@@ -245,7 +273,7 @@ void G2FrameTransformPropertyAccessor::setPropertyValue(uint32_t propertyId, con
     case OB_PROP_IR_FLIP_BOOL:
     case OB_PROP_IR_ROTATE_INT: {
         const auto componentId =
-            getOptionCode() == MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL ? OB_DEV_COMPONENT_LEFT_IR_FRAME_PROCESSOR : OB_DEV_COMPONENT_IR_FRAME_PROCESSOR;
+            G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode()) ? OB_DEV_COMPONENT_LEFT_IR_FRAME_PROCESSOR : OB_DEV_COMPONENT_IR_FRAME_PROCESSOR;
 
         auto processor = owner_->getComponentT<FrameProcessor>(componentId);
         if(propertyId == OB_PROP_IR_MIRROR_BOOL) {
@@ -260,7 +288,7 @@ void G2FrameTransformPropertyAccessor::setPropertyValue(uint32_t propertyId, con
     case OB_PROP_IR_RIGHT_MIRROR_BOOL:
     case OB_PROP_IR_RIGHT_FLIP_BOOL:
     case OB_PROP_IR_RIGHT_ROTATE_INT: {
-        if(getOptionCode() != MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+        if(!G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode())) {
             LOG_DEBUG("IR right properties require MX6600 mode");
             return;
         }
@@ -292,7 +320,7 @@ void G2FrameTransformPropertyAccessor::getPropertyValue(uint32_t propertyId, OBP
     case OB_PROP_DEPTH_MIRROR_BOOL:
     case OB_PROP_DEPTH_FLIP_BOOL:
     case OB_PROP_DEPTH_ROTATE_INT: {
-        if(getOptionCode() == MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+        if(G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode())) {
             LOG_DEBUG("Depth properties unavailable in MX6600 Right IR mode");
             return;
         }
@@ -309,7 +337,7 @@ void G2FrameTransformPropertyAccessor::getPropertyValue(uint32_t propertyId, OBP
     case OB_PROP_IR_FLIP_BOOL:
     case OB_PROP_IR_ROTATE_INT: {
         const auto component =
-            getOptionCode() == MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL ? OB_DEV_COMPONENT_LEFT_IR_FRAME_PROCESSOR : OB_DEV_COMPONENT_IR_FRAME_PROCESSOR;
+            G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode()) ? OB_DEV_COMPONENT_LEFT_IR_FRAME_PROCESSOR : OB_DEV_COMPONENT_IR_FRAME_PROCESSOR;
 
         auto processor = owner_->getComponentT<FrameProcessor>(component);
         processor->getPropertyValue(propertyId, value);
@@ -321,7 +349,7 @@ void G2FrameTransformPropertyAccessor::getPropertyValue(uint32_t propertyId, OBP
     case OB_PROP_IR_RIGHT_MIRROR_BOOL:
     case OB_PROP_IR_RIGHT_FLIP_BOOL:
     case OB_PROP_IR_RIGHT_ROTATE_INT: {
-        if(getOptionCode() != MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+        if(!G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode())) {
             LOG_DEBUG("IR right properties require MX6600 Right IR mode");
             return;
         }
@@ -351,7 +379,7 @@ void G2FrameTransformPropertyAccessor::getPropertyRange(uint32_t propertyId, OBP
     case OB_PROP_DEPTH_MIRROR_BOOL:
     case OB_PROP_DEPTH_FLIP_BOOL:
     case OB_PROP_DEPTH_ROTATE_INT: {
-        if(getOptionCode() == MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+        if(G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode())) {
             LOG_DEBUG("Depth properties unavailable in MX6600 mode");
             return;
         }
@@ -369,7 +397,7 @@ void G2FrameTransformPropertyAccessor::getPropertyRange(uint32_t propertyId, OBP
     case OB_PROP_IR_FLIP_BOOL:
     case OB_PROP_IR_ROTATE_INT: {
         const auto componentId =
-            getOptionCode() == MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL ? OB_DEV_COMPONENT_LEFT_IR_FRAME_PROCESSOR : OB_DEV_COMPONENT_IR_FRAME_PROCESSOR;
+            G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode()) ? OB_DEV_COMPONENT_LEFT_IR_FRAME_PROCESSOR : OB_DEV_COMPONENT_IR_FRAME_PROCESSOR;
 
         auto processor = owner_->getComponentT<FrameProcessor>(componentId);
         processor->getPropertyRange(propertyId, range);
@@ -381,7 +409,7 @@ void G2FrameTransformPropertyAccessor::getPropertyRange(uint32_t propertyId, OBP
     case OB_PROP_IR_RIGHT_MIRROR_BOOL:
     case OB_PROP_IR_RIGHT_FLIP_BOOL:
     case OB_PROP_IR_RIGHT_ROTATE_INT: {
-        if(getOptionCode() != MX6600_RIGHT_IR_FROM_DEPTH_CHANNEL) {
+        if(!G2DepthWorkModeManager::isRightIrFromDepthChannel(getOptionCode())) {
             LOG_DEBUG("IR right properties require MX6600 Right IR mode");
             return;
         }

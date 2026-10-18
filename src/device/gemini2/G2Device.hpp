@@ -17,14 +17,16 @@ public:
     G2Device(const std::shared_ptr<const IDeviceEnumInfo> &info);
     virtual ~G2Device() noexcept override;
 
-private:
+protected:
     void init() override;
-    void initSensorList();
-    void initProperties();
     void initSensorStreamProfile(std::shared_ptr<ISensor> sensor);
-    void fixSensorList();  // fix sensor list according to the depth work mode
 
 private:
+    void initSensorList();
+    void initProperties();
+    void fixSensorList();  // fix sensor list according to the depth work mode
+
+protected:
     const uint64_t                                              frameTimeFreq_  = 1000000;
     uint64_t                                                    deviceTimeFreq_ = 1000000;
     std::function<std::shared_ptr<IFrameTimestampCalculator>()> videoFrameTimestampCalculatorCreator_;

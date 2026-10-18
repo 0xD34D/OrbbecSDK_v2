@@ -728,6 +728,41 @@
             </In-sceneCalibration>
         </Gemini2>
 
+        <!-- Creality CR-Scan Otter config -->
+        <CR-ScanOtter>
+            <!-- The default Linux UVC backend. If the LinuxUVCBackend is set to "Auto," this item
+            will determine the device's speciality. Optional values: V4L2, LibUVC -->
+            <LinuxUVCDefaultBackend>LibUVC</LinuxUVCDefaultBackend>
+
+            <Misc>
+                <GlobalTimestampFitterEnable>false</GlobalTimestampFitterEnable>
+                <GlobalTimestampFitterInterval>1000</GlobalTimestampFitterInterval>
+                <GlobalTimestampFitterQueueSize>100</GlobalTimestampFitterQueueSize>
+            </Misc>
+
+            <!-- Whether to enable heartbeat by default -->
+            <DefaultHeartBeat>0</DefaultHeartBeat>
+            <!-- 640x400 depth/IR defaults also work over USB 2.0 -->
+            <Depth>
+                <Width>640</Width>
+                <Height>400</Height>
+                <FPS>15</FPS>
+                <Format>Y16</Format>
+            </Depth>
+            <Color>
+                <Width>1280</Width>
+                <Height>720</Height>
+                <FPS>30</FPS>
+                <Format>MJPG</Format>
+            </Color>
+            <IR>
+                <Width>640</Width>
+                <Height>400</Height>
+                <FPS>30</FPS>
+                <Format>Y10</Format>
+            </IR>
+        </CR-ScanOtter>
+
         <!-- Gemini2L config -->
         <Gemini2L>
             <!-- The default Linux UVC backend. If the LinuxUVCBackend is set to "Auto," this item

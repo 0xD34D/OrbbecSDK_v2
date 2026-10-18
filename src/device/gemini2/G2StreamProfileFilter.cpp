@@ -67,15 +67,16 @@ void G2StreamProfileFilter::fetchEffectiveStreamProfiles() {
             newProfile.format = OB_FORMAT_BGRA;
             effectiveStreamProfiles_.push_back(newProfile);
         }
-        else if(profile.sensorType == OB_SENSOR_DEPTH && profile.format == OB_FORMAT_RLE) {
+        else if(profile.sensorType == OB_SENSOR_DEPTH && (profile.format == OB_FORMAT_RLE || profile.format == OB_FORMAT_Y14)) {
+            // Compressed (RLE) and packed (Y14) depth are delivered to the user decoded as Y16
             auto newProfile   = profile;
             newProfile.format = OB_FORMAT_Y16;
-            auto iter         = std::find_if(profiles.begin(), profiles.end(), [&newProfile](const OBEffectiveStreamProfile &profile) {
+            auto iter = std::find_if(effectiveStreamProfiles_.begin(), effectiveStreamProfiles_.end(), [&newProfile](const OBEffectiveStreamProfile &profile) {
                 return profile.sensorType == newProfile.sensorType && profile.format == OB_FORMAT_Y16 && profile.width == newProfile.width
                        && profile.height == newProfile.height && profile.maxFps == newProfile.maxFps;
             });
 
-            if(iter == profiles.end()) {
+            if(iter == effectiveStreamProfiles_.end()) {
                 effectiveStreamProfiles_.push_back(newProfile);
             }
         }

@@ -14,6 +14,10 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/G2XLDevice.cpp
     ${CMAKE_CURRENT_LIST_DIR}/G210Device.cpp
     ${CMAKE_CURRENT_LIST_DIR}/G210Device.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/OtterDevice.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/OtterDevice.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/OtterY14Unpacker.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/OtterY14Unpacker.cpp
     ${CMAKE_CURRENT_LIST_DIR}/G2StreamProfileFilter.hpp
     ${CMAKE_CURRENT_LIST_DIR}/G2StreamProfileFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/G2PropertyAccessors.hpp

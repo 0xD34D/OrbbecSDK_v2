@@ -40,6 +40,17 @@ public:
     void getPropertyValue(uint32_t propertyId, OBPropertyValue *value) override;
 };
 
+// CR-Scan Otter: disparity to depth is done on the device only
+class OtterDisp2DepthPropertyAccessor : public G2Disp2DepthPropertyAccessor {
+public:
+    explicit OtterDisp2DepthPropertyAccessor(IDevice *owner);
+    virtual ~OtterDisp2DepthPropertyAccessor() noexcept override = default;
+
+    void setPropertyValue(uint32_t propertyId, const OBPropertyValue &value) override;
+    void getPropertyValue(uint32_t propertyId, OBPropertyValue *value) override;
+    void getPropertyRange(uint32_t propertyId, OBPropertyRange *range) override;
+};
+
 class G2FrameTransformPropertyAccessor : public IBasicPropertyAccessor {
 public:
     explicit G2FrameTransformPropertyAccessor(IDevice *owner);

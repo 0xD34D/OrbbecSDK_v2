@@ -17,6 +17,9 @@ public:
     ~G2DeviceInfo() noexcept override;
 
     std::shared_ptr<IDevice> createDevice(OBDeviceAccessMode accessMode) const override;
+
+    // "Orbbec", or the brand of an OEM device built on this platform
+    static std::string getManufacturerName(int pid);
 #if defined(BUILD_USB_PAL)
     static std::vector<std::shared_ptr<IDeviceEnumInfo>> pickDevices(const SourcePortInfoList infoList);
 #endif

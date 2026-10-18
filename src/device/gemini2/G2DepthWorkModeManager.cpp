@@ -57,12 +57,17 @@ void G2DepthWorkModeManager::switchDepthWorkMode(const OBDepthWorkModeV2_Interna
 
         OBDepthWorkMode_Internal mode;
         memcpy(&mode, &targetDepthMode, sizeof(OBDepthWorkMode_Internal));
-        propServer->setStructureDataProtoV1_1_T<OBDepthWorkMode_Internal, 0>(OB_STRUCT_CURRENT_DEPTH_ALG_MODE, mode);
+        writeDepthWorkMode(mode);
         currentWorkMode_ = { targetDepthMode, "" };
     }
 
     LOG_INFO("Device depth work mode have been switch to: {}, device will be reinitialize to apply the new mode.", targetDepthMode.name);
     owner->reset();
+}
+
+void G2DepthWorkModeManager::writeDepthWorkMode(const OBDepthWorkMode_Internal &mode) {
+    auto propServer = getOwner()->getPropertyServer();
+    propServer->setStructureDataProtoV1_1_T<OBDepthWorkMode_Internal, 0>(OB_STRUCT_CURRENT_DEPTH_ALG_MODE, mode);
 }
 
 void G2DepthWorkModeManager::fetchDepthWorkModeList() {
