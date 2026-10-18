@@ -420,6 +420,13 @@ typedef enum {
     OB_PROP_DEPTH_UNIT_FLEXIBLE_ADJUSTMENT_FLOAT = 176,
 
     /**
+     * @brief IR flood LEDs, true: on, false: off
+     * @attention On the CR-Scan Otter the flood LEDs replace the laser pattern: turning them on turns the laser off, and turning them
+     * off leaves the laser off until @ref OB_PROP_LASER_BOOL turns it on again.
+     */
+    OB_PROP_IR_LED_MASK_BOOL = 178,
+
+    /**
      * @brief Laser control, 0: off, 1: on, 2: auto
      *
      */

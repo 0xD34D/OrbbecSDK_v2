@@ -9,7 +9,9 @@
 #include "utils/PublicTypeHelper.hpp"
 
 #include "sensor/video/DisparityBasedSensor.hpp"
+#include "property/CommonPropertyAccessors.hpp"
 #include "property/PropertyServer.hpp"
+#include "property/VendorPropertyAccessor.hpp"
 #include "timestamp/GlobalTimestampFitter.hpp"
 #include "timestamp/FrameTimestampCalculator.hpp"
 
@@ -61,6 +63,15 @@ void OtterDevice::initDepthProperties() {
     propertyServer->registerProperty(OB_PROP_DISPARITY_TO_DEPTH_BOOL, "rw", "rw", d2dPropertyAccessor);
     propertyServer->registerProperty(OB_PROP_DEPTH_PRECISION_LEVEL_INT, "rw", "rw", d2dPropertyAccessor);
     propertyServer->registerProperty(OB_STRUCT_DEPTH_PRECISION_SUPPORT_LIST, "r", "r", d2dPropertyAccessor);
+
+    // Same command channel as the laser: the depth interface, which carries the right IR stream in the binocular modes
+    const auto commandSensor = isSensorExists(OB_SENSOR_DEPTH) ? OB_SENSOR_DEPTH : OB_SENSOR_IR_RIGHT;
+    if(isSensorExists(commandSensor)) {
+        auto portInfo       = getSensorPortInfo(commandSensor);
+        auto vendorAccessor = std::make_shared<LazySuperPropertyAccessor>(
+            [this, portInfo]() { return std::make_shared<VendorPropertyAccessor>(this, getSourcePort(portInfo)); });
+        propertyServer->registerProperty(OB_PROP_IR_LED_MASK_BOOL, "rw", "rw", vendorAccessor);
+    }
 
     // Not supported on this device
     propertyServer->unregisterProperty(OB_PROP_SDK_DISPARITY_TO_DEPTH_BOOL);
