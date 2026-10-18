@@ -19,10 +19,16 @@ public:
     std::shared_ptr<const SourcePortInfo> getSourcePortInfo() const override;
 
 private:
+    void claimInterface();
+    void releaseInterface();
+
     std::shared_ptr<const USBSourcePortInfo> portInfo_;
     std::shared_ptr<IUsbDevice>              usbDevice_;
     uint8_t                                  endpointAddress_;
     uint16_t                                 maxPacketSize_;
+
+    bool interfaceClaimed_     = false;
+    bool kernelDriverDetached_ = false;
 
     std::atomic_bool  isStreaming_;
     FrameQueue<Frame> frameQueue_;

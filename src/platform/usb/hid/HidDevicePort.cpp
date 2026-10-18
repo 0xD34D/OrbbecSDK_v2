@@ -18,50 +18,64 @@ HidDevicePort::HidDevicePort(const std::shared_ptr<IUsbDevice> &usbDevice, std::
     endpointAddress_  = epDesc.bEndpointAddress;
     maxPacketSize_    = epDesc.wMaxPacketSize;
 
-    auto libusbDevHandle = libusbDevice->getLibusbDeviceHandle();
-    if(libusb_kernel_driver_active(libusbDevHandle, portInfo->infIndex) == 1) {
-        auto res = libusb_detach_kernel_driver(libusbDevHandle, portInfo->infIndex);
-        if(res != LIBUSB_SUCCESS) {
-            THROW_IO_EXCEPTION("detach kernel driver failed, error: " + std::string(libusb_strerror(res)));
-        }
-    }
-    auto res = libusb_claim_interface(libusbDevHandle, portInfo->infIndex);
-    if(res == LIBUSB_ERROR_BUSY) {
-        LOG_WARN("libusb_claim_interface busy, retrying once. Interface: {}", portInfo->infIndex);
-        res = libusb_claim_interface(libusbDevHandle, portInfo->infIndex);
-    }
-    if(res != LIBUSB_SUCCESS) {
-        THROW_IO_EXCEPTION("claim interface failed, error: " + std::string(libusb_strerror(res)));
-    }
     LOG_DEBUG("HidDevicePort::HidDevicePort done");
 }
 
 HidDevicePort::~HidDevicePort() noexcept {
     if(isStreaming_) {
         frameQueue_.stop();
-        stopStream();
+        TRY_EXECUTE(stopStream());
     }
+    LOG_DEBUG("HidDevicePort::~HidDevicePort done");
+}
 
+// The interface is held only while streaming, so other users of it (such as the kernel's HID driver) get it back in between
+void HidDevicePort::claimInterface() {
     auto libusbDevice    = std::dynamic_pointer_cast<UsbDeviceLibusb>(usbDevice_);
     auto libusbDevHandle = libusbDevice->getLibusbDeviceHandle();
-
-    auto res = libusb_release_interface(libusbDevHandle, portInfo_->infIndex);
-    if(res != LIBUSB_SUCCESS) {
-        LOG_WARN("release interface failed, error: {}", libusb_strerror(res));
-    }
     if(libusb_kernel_driver_active(libusbDevHandle, portInfo_->infIndex) == 1) {
-        res = libusb_attach_kernel_driver(libusbDevHandle, portInfo_->infIndex);
+        auto res = libusb_detach_kernel_driver(libusbDevHandle, portInfo_->infIndex);
+        if(res != LIBUSB_SUCCESS) {
+            THROW_IO_EXCEPTION("detach kernel driver failed, error: " + std::string(libusb_strerror(res)));
+        }
+        kernelDriverDetached_ = true;
+    }
+    auto res = libusb_claim_interface(libusbDevHandle, portInfo_->infIndex);
+    if(res == LIBUSB_ERROR_BUSY) {
+        LOG_WARN("libusb_claim_interface busy, retrying once. Interface: {}", portInfo_->infIndex);
+        res = libusb_claim_interface(libusbDevHandle, portInfo_->infIndex);
+    }
+    if(res != LIBUSB_SUCCESS) {
+        releaseInterface();
+        THROW_IO_EXCEPTION("claim interface failed, error: " + std::string(libusb_strerror(res)));
+    }
+    interfaceClaimed_ = true;
+}
+
+void HidDevicePort::releaseInterface() {
+    auto libusbDevice    = std::dynamic_pointer_cast<UsbDeviceLibusb>(usbDevice_);
+    auto libusbDevHandle = libusbDevice->getLibusbDeviceHandle();
+    if(interfaceClaimed_) {
+        auto res = libusb_release_interface(libusbDevHandle, portInfo_->infIndex);
+        if(res != LIBUSB_SUCCESS) {
+            LOG_WARN("release interface failed, error: {}", libusb_strerror(res));
+        }
+        interfaceClaimed_ = false;
+    }
+    if(kernelDriverDetached_) {
+        auto res = libusb_attach_kernel_driver(libusbDevHandle, portInfo_->infIndex);
         if(res != LIBUSB_SUCCESS) {
             LOG_WARN("attach kernel driver failed, error: {}", libusb_strerror(res));
         }
+        kernelDriverDetached_ = false;
     }
-    LOG_DEBUG("HidDevicePort::~HidDevicePort done");
 }
 
 void HidDevicePort::startStream(MutableFrameCallback callback) {
     if(isStreaming_) {
         THROW_WRONG_API_CALL_SEQUENCE_EXCEPTION("HidDevicePort::startStream() called while streaming");
     }
+    claimInterface();
     isStreaming_ = true;
     frameQueue_.start(callback);
 
@@ -94,6 +108,7 @@ void HidDevicePort::stopStream() {
 
     streamThread_.join();
     frameQueue_.flush();
+    releaseInterface();
 
     LOG_DEBUG("HidDevicePort::stopStream done");
 }
