@@ -403,6 +403,26 @@ typedef enum {
     OB_PROP_LASER_PULSE_WIDTH_PROTECTION_STATUS_BOOL = 149,
 
     /**
+     * @brief White fill light next to the color camera, true: on, false: off
+     */
+    OB_PROP_LIGHT_RGB_WHITE_BOOL = 156,
+
+    /**
+     * @brief Fill light for the IR cameras, true: on, false: off
+     */
+    OB_PROP_LIGHT_IR_WHITE_BOOL = 157,
+
+    /**
+     * @brief Drive current of the color camera's white fill light (@ref OB_PROP_LIGHT_RGB_WHITE_BOOL); higher is brighter
+     */
+    OB_PROP_LIGHT_RGB_WHITE_ELECTRIC_INT = 159,
+
+    /**
+     * @brief Drive current of the IR fill light (@ref OB_PROP_LIGHT_IR_WHITE_BOOL); higher is brighter
+     */
+    OB_PROP_LIGHT_IR_WHITE_ELECTRIC_INT = 160,
+
+    /**
      * @brief Laser always on, true: always on, false: off, laser will be turned off when out of exposure time
      */
     OB_PROP_LASER_ALWAYS_ON_BOOL = 174,

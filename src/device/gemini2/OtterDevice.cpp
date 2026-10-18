@@ -71,6 +71,10 @@ void OtterDevice::initDepthProperties() {
         auto vendorAccessor = std::make_shared<LazySuperPropertyAccessor>(
             [this, portInfo]() { return std::make_shared<VendorPropertyAccessor>(this, getSourcePort(portInfo)); });
         propertyServer->registerProperty(OB_PROP_IR_LED_MASK_BOOL, "rw", "rw", vendorAccessor);
+        propertyServer->registerProperty(OB_PROP_LIGHT_RGB_WHITE_BOOL, "rw", "rw", vendorAccessor);
+        propertyServer->registerProperty(OB_PROP_LIGHT_IR_WHITE_BOOL, "rw", "rw", vendorAccessor);
+        propertyServer->registerProperty(OB_PROP_LIGHT_RGB_WHITE_ELECTRIC_INT, "rw", "rw", vendorAccessor);
+        propertyServer->registerProperty(OB_PROP_LIGHT_IR_WHITE_ELECTRIC_INT, "rw", "rw", vendorAccessor);
     }
 
     // Not supported on this device
