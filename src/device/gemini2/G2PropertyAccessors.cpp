@@ -239,6 +239,12 @@ void OtterDisp2DepthPropertyAccessor::getPropertyValue(uint32_t propertyId, OBPr
 void OtterDisp2DepthPropertyAccessor::getPropertyRange(uint32_t propertyId, OBPropertyRange *range) {
     auto commandPort = getOwner()->getComponentT<IBasicPropertyAccessor>(OB_DEV_COMPONENT_MAIN_PROPERTY_ACCESSOR);
     commandPort->getPropertyRange(propertyId, range);
+    // The firmware reports a 0-0 range for the disparity to depth switch although it takes both values
+    if(propertyId == OB_PROP_DISPARITY_TO_DEPTH_BOOL) {
+        range->min.intValue  = 0;
+        range->max.intValue  = 1;
+        range->step.intValue = 1;
+    }
 }
 
 G2FrameTransformPropertyAccessor::G2FrameTransformPropertyAccessor(IDevice *owner) : owner_(owner), optionCode_(INVALID) {}

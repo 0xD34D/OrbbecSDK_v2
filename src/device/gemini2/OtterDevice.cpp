@@ -82,6 +82,19 @@ void OtterDevice::initDepthProperties() {
     propertyServer->unregisterProperty(OB_PROP_DEPTH_NOISE_REMOVAL_FILTER_BOOL);
     propertyServer->unregisterProperty(OB_PROP_DEPTH_NOISE_REMOVAL_FILTER_MAX_DIFF_INT);
     propertyServer->unregisterProperty(OB_PROP_DEPTH_NOISE_REMOVAL_FILTER_MAX_SPECKLE_SIZE_INT);
+    propertyServer->unregisterProperty(OB_PROP_DEPTH_ALIGN_HARDWARE_BOOL);
+    propertyServer->unregisterProperty(OB_PROP_DEPTH_ALIGN_HARDWARE_MODE_INT);
+    propertyServer->unregisterProperty(OB_PROP_LASER_POWER_LEVEL_CONTROL_INT);
+    propertyServer->unregisterProperty(OB_PROP_LASER_POWER_ACTUAL_LEVEL_INT);
+    propertyServer->unregisterProperty(OB_PROP_DEPTH_RM_FILTER_BOOL);
+    propertyServer->unregisterProperty(OB_PROP_DEVICE_USB2_REPEAT_IDENTIFY_BOOL);
+
+    // Mirror, flip and rotate are done by the frame processors, which offer none of them for this device, and depth has no frame processor
+    for(auto propertyId: { OB_PROP_DEPTH_MIRROR_BOOL, OB_PROP_DEPTH_FLIP_BOOL, OB_PROP_DEPTH_ROTATE_INT, OB_PROP_COLOR_MIRROR_BOOL, OB_PROP_COLOR_FLIP_BOOL,
+                            OB_PROP_COLOR_ROTATE_INT, OB_PROP_IR_MIRROR_BOOL, OB_PROP_IR_FLIP_BOOL, OB_PROP_IR_ROTATE_INT, OB_PROP_IR_RIGHT_MIRROR_BOOL,
+                            OB_PROP_IR_RIGHT_FLIP_BOOL, OB_PROP_IR_RIGHT_ROTATE_INT }) {
+        propertyServer->unregisterProperty(propertyId);
+    }
 }
 
 void OtterDevice::initDepthSensor() {
