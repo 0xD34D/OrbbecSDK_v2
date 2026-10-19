@@ -195,7 +195,29 @@ public:
     }
 };
 
+// CR-Scan Otter: its depth comes from the device's disparity to depth conversion, and the private post-processing filters
+// cannot be activated for it, since it has no depth frame processor
+class OtterStrategy : public IRecommendedPostFilterStrategy {
+public:
+    std::vector<std::shared_ptr<IFilter>> createFilters(IDevice *owner, OBSensorType type) override {
+        (void)owner;
+        if(type != OB_SENSOR_DEPTH) {
+            return {};
+        }
+        auto                                  filterFactory = FilterFactory::getInstance();
+        std::vector<std::shared_ptr<IFilter>> depthFilterList;
+        if(filterFactory->isFilterCreatorExists("ThresholdFilter")) {
+            depthFilterList.push_back(filterFactory->createFilter("ThresholdFilter"));
+        }
+        return depthFilterList;
+    }
+};
+
 }  // namespace
+
+std::shared_ptr<IRecommendedPostFilterStrategy> createOtterPostFilterStrategy() {
+    return std::make_shared<OtterStrategy>();
+}
 
 std::shared_ptr<IRecommendedPostFilterStrategy> createGemini2PostFilterStrategy() {
     return std::make_shared<Gemini2Strategy>();

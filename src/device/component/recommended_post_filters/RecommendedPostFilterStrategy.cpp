@@ -42,6 +42,9 @@ std::shared_ptr<IRecommendedPostFilterStrategy> RecommendedPostFilterStrategyFac
         else if(pid == 0x0808 || pid == 0x0809) {
             return std::make_shared<EmptyStrategy>();
         }
+        else if(pid == OB_DEVICE_CR_SCAN_OTTER_PID) {
+            return createOtterPostFilterStrategy();
+        }
         else if(std::find(Gemini2DevPids.begin(), Gemini2DevPids.end(), pid) != Gemini2DevPids.end()) {
             return createGemini2PostFilterStrategy();
         }

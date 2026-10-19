@@ -16,6 +16,7 @@ std::shared_ptr<IRecommendedPostFilterStrategy> createDabaiAPostFilterStrategy()
 std::shared_ptr<IRecommendedPostFilterStrategy> createAstra2PostFilterStrategy();
 std::shared_ptr<IRecommendedPostFilterStrategy> createGemini2PostFilterStrategy();
 std::shared_ptr<IRecommendedPostFilterStrategy> createGemini2XLPostFilterStrategy();
+std::shared_ptr<IRecommendedPostFilterStrategy> createOtterPostFilterStrategy();
 std::shared_ptr<IRecommendedPostFilterStrategy> createG435LePostFilterStrategy();
 std::shared_ptr<IRecommendedPostFilterStrategy> createFemtoMegaBoltPostFilterStrategy();
 std::shared_ptr<IRecommendedPostFilterStrategy> createGemini305PostFilterStrategy();
