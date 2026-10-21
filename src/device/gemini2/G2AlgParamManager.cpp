@@ -115,7 +115,13 @@ void G2AlgParamManager::registerBasicExtrinsics() {
     auto gyroBasicStreamProfile    = StreamProfileFactory::createGyroStreamProfile(OB_GYRO_FS_16dps, OB_SAMPLE_RATE_1_5625_HZ);
 
     if(!calibrationCameraParamList_.empty()) {
-        auto d2cExtrinsic = calibrationCameraParamList_.front().transform;
+        // The calibration list holds the cameras of every depth work mode; the depth to color profiles point at the current
+        // mode's, which is where the intrinsics come from too
+        size_t paramIndex = 0;
+        if(!d2cProfileList_.empty() && d2cProfileList_.front().paramIndex < calibrationCameraParamList_.size()) {
+            paramIndex = d2cProfileList_.front().paramIndex;
+        }
+        auto d2cExtrinsic = calibrationCameraParamList_.at(paramIndex).transform;
         bool mirrored     = false;
         {
             auto owner      = getOwner();
